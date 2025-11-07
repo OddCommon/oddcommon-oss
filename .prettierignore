@@ -1,0 +1,10 @@
+# Ignore artifacts:
+**/.build/
+**/.dist/
+**/.coverage/
+**/.turbo/
+**/node_modules/
+
+# LLM
+**/.docs/
+**/.claude/
