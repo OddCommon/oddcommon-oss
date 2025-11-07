@@ -6,13 +6,18 @@
     "lint": "turbo run lint",
     "check-types": "turbo run check-types",
     "format": "turbo run format",
-    "precommit": "turbo run precommit"
+    "precommit": "turbo run precommit",
+    "changeset": "changeset",
+    "version": "changeset version",
+    "release": "turbo run build && changeset publish --provenance"
   },
   "packageManager": "pnpm@10.19.0",
   "engines": {
     "node": ">=22"
   },
   "devDependencies": {
+    "@changesets/changelog-github": "^0.5.1",
+    "@changesets/cli": "^2.29.7",
     "@trivago/prettier-plugin-sort-imports": "^6",
     "husky": "^9",
     "prettier": "^3",

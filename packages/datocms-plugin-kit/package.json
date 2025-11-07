@@ -35,6 +35,27 @@
   },
   "author": "Alban Creton - OddCommon",
   "license": "MIT",
+  "keywords": [
+    "datocms",
+    "datocms-plugin",
+    "plugin",
+    "cms",
+    "factory",
+    "modular",
+    "typescript"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/oddcommon/oddcommon-oss.git",
+    "directory": "packages/datocms-plugin-kit"
+  },
+  "bugs": {
+    "url": "https://github.com/oddcommon/oddcommon-oss/issues"
+  },
+  "homepage": "https://github.com/oddcommon/oddcommon-oss/tree/main/packages/datocms-plugin-kit#readme",
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "datocms-plugin-sdk": "^2.0.15",
     "react": "^19.2.0",
