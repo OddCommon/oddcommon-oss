@@ -1,0 +1,22 @@
+{
+  "name": "oddcommon-oss",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "check-types": "turbo run check-types",
+    "format": "turbo run format",
+    "precommit": "turbo run precommit"
+  },
+  "packageManager": "pnpm@10.19.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "@trivago/prettier-plugin-sort-imports": "^6",
+    "husky": "^9",
+    "prettier": "^3",
+    "turbo": "^2",
+    "typescript": "^5"
+  }
+}

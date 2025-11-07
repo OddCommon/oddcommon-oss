@@ -1,0 +1,21 @@
+{
+  "workbench.colorCustomizations": {
+    "titleBar.activeBackground": "#252424",
+    "titleBar.activeForeground": "#ffea28",
+    "titleBar.inactiveBackground": "#252424",
+    "titleBar.inactiveForeground": "#ffea28"
+  },
+  "eslint.workingDirectories": [
+    {
+      "mode": "auto"
+    }
+  ],
+  "editor.formatOnSave": true,
+  "json.validate.enable": true,
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+  "tailwindCSS.experimental.configFile": {
+    "packages/ui/src/globals.generated.css": "**"
+  }
+}
