@@ -29,9 +29,19 @@ import type {
   RenderPageCtx,
 } from 'datocms-plugin-sdk';
 
+// Duplicate ID handling modes
+export type DuplicateIdHandling = 'throw' | 'warn' | 'ignore';
+
 // Plugin configuration
 export interface PluginOptions {
   render?: (component: React.ReactNode) => void;
+  duplicateIdHandling?: DuplicateIdHandling;
+}
+
+// Internal plugin configuration shared across registration functions
+export interface PluginInternalConfig {
+  render: (component: React.ReactNode) => void;
+  duplicateIdHandling: DuplicateIdHandling;
 }
 
 // Form Outlet
@@ -63,7 +73,7 @@ export interface MainNavigationTabConfig {
   pointsTo: { pageId: string };
   placement?: [
     'before' | 'after',
-    'content' | 'media' | 'schema' | 'configuration' | 'cdaPlayground'
+    'content' | 'media' | 'schema' | 'configuration' | 'cdaPlayground',
   ];
   rank?: number;
 }
@@ -129,36 +139,54 @@ export interface ConfigScreenConfig {
 // Dropdown Action
 export type DropdownActionType = 'field' | 'itemForm' | 'items' | 'uploads';
 
-export interface DropdownActionConfig {
-  type: DropdownActionType;
+interface BaseDropdownActionConfig {
   id: string;
   label: string;
   icon?: Icon;
-  execute: (
-    ctx:
-      | ExecuteFieldDropdownActionCtx
-      | ExecuteItemFormDropdownActionCtx
-      | ExecuteItemsDropdownActionCtx
-      | ExecuteUploadsDropdownActionCtx
-  ) => Promise<void>;
   shouldApply?: (...args: unknown[]) => boolean;
 }
+
+export type FieldDropdownActionConfig = BaseDropdownActionConfig & {
+  type: 'field';
+  execute: (ctx: ExecuteFieldDropdownActionCtx) => Promise<void>;
+};
+
+export type ItemFormDropdownActionConfig = BaseDropdownActionConfig & {
+  type: 'itemForm';
+  execute: (ctx: ExecuteItemFormDropdownActionCtx) => Promise<void>;
+};
+
+export type ItemsDropdownActionConfig = BaseDropdownActionConfig & {
+  type: 'items';
+  execute: (ctx: ExecuteItemsDropdownActionCtx) => Promise<void>;
+};
+
+export type UploadsDropdownActionConfig = BaseDropdownActionConfig & {
+  type: 'uploads';
+  execute: (ctx: ExecuteUploadsDropdownActionCtx) => Promise<void>;
+};
+
+export type DropdownActionConfig =
+  | FieldDropdownActionConfig
+  | ItemFormDropdownActionConfig
+  | ItemsDropdownActionConfig
+  | UploadsDropdownActionConfig;
 
 // Event Hooks
 export type OnBootHandler = (ctx: OnBootCtx) => void | Promise<void>;
 export type OnBeforeItemUpsertHandler = (
   createOrUpdateItemPayload: Record<string, unknown>,
-  ctx: OnBeforeItemUpsertCtx
+  ctx: OnBeforeItemUpsertCtx,
 ) => boolean | Promise<boolean>;
 export type OnBeforeItemsDestroyHandler = (
   items: Item[],
-  ctx: OnBeforeItemsDestroyCtx
+  ctx: OnBeforeItemsDestroyCtx,
 ) => boolean | Promise<boolean>;
 export type OnBeforeItemsPublishHandler = (
   items: Item[],
-  ctx: OnBeforeItemsPublishCtx
+  ctx: OnBeforeItemsPublishCtx,
 ) => boolean | Promise<boolean>;
 export type OnBeforeItemsUnpublishHandler = (
   items: Item[],
-  ctx: OnBeforeItemsUnpublishCtx
+  ctx: OnBeforeItemsUnpublishCtx,
 ) => boolean | Promise<boolean>;

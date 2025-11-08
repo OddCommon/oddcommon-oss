@@ -1,27 +1,35 @@
 import type { FullConnectParameters } from 'datocms-plugin-sdk';
-import { validateRequired } from '../utils/validation';
-import type { ConfigScreenConfig } from '../types';
+
+import type { ConfigScreenConfig, PluginInternalConfig } from '../types';
 
 export function createConfigScreenRegistration(
   config: Partial<FullConnectParameters>,
-  render: (component: React.ReactNode) => void
+  internalConfig: PluginInternalConfig,
 ) {
   let isConfigured = false;
 
   function configureConfigScreen(screenConfig: ConfigScreenConfig) {
-    validateRequired(screenConfig as unknown as Record<string, unknown>, ['component'], 'Config screen');
-
     if (isConfigured) {
-      throw new Error('Config screen is already configured');
-    }
+      const message = 'Config screen is already configured';
 
-    isConfigured = true;
+      switch (internalConfig.duplicateIdHandling) {
+        case 'throw':
+          throw new Error(message);
+        case 'warn':
+          console.warn(`[datocms-plugin-kit] ${message}`);
+          break; // Continue to replace
+        case 'ignore':
+          break; // Continue to replace
+      }
+    }
 
     // Register render hook
     config.renderConfigScreen = (ctx) => {
       const Component = screenConfig.component;
-      render(<Component ctx={ctx} />);
+      internalConfig.render(<Component ctx={ctx} />);
     };
+
+    isConfigured = true;
   }
 
   return {

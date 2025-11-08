@@ -1,5 +1,6 @@
-import { describe, expect, it } from 'vitest';
-import { validateRequired, validateUniqueId } from './validation';
+import { describe, expect, it, vi } from 'vitest';
+
+import { validateUniqueId } from './validation';
 
 describe('Validation utilities', () => {
   describe('validateUniqueId', () => {
@@ -9,24 +10,28 @@ describe('Validation utilities', () => {
       }).not.toThrow();
     });
 
-    it('should throw for duplicate ID', () => {
+    it('should throw for duplicate ID when mode is throw', () => {
       expect(() => {
-        validateUniqueId('existing-1', ['existing-1', 'existing-2'], 'outlet');
-      }).toThrow('outlet with id "existing-1" is already registered');
-    });
-  });
-
-  describe('validateRequired', () => {
-    it('should not throw when all required fields present', () => {
-      expect(() => {
-        validateRequired({ id: 'test', name: 'Test' }, ['id', 'name'], 'config');
-      }).not.toThrow();
+        validateUniqueId('existing-1', ['existing-1', 'existing-2'], 'outlet', 'throw');
+      }).toThrow();
     });
 
-    it('should throw when required field missing', () => {
-      expect(() => {
-        validateRequired({ id: 'test' }, ['id', 'name'], 'config');
-      }).toThrow('config requires field "name"');
+    it('should warn by default for duplicate ID', () => {
+      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      validateUniqueId('existing-1', ['existing-1', 'existing-2'], 'outlet');
+
+      expect(consoleWarnSpy).toHaveBeenCalled();
+      consoleWarnSpy.mockRestore();
+    });
+
+    it('should ignore duplicate ID when mode is ignore', () => {
+      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      validateUniqueId('existing-1', ['existing-1', 'existing-2'], 'outlet', 'ignore');
+
+      expect(consoleWarnSpy).not.toHaveBeenCalled();
+      consoleWarnSpy.mockRestore();
     });
   });
 });

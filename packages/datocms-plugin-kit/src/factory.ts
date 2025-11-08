@@ -1,28 +1,44 @@
 import { connect as sdkConnect } from 'datocms-plugin-sdk';
 import type { FullConnectParameters } from 'datocms-plugin-sdk';
-import { createDefaultRender } from './render';
-import { createOutletRegistration } from './registration/outlets';
-import { createPageRegistration } from './registration/pages';
-import { createSidebarRegistration } from './registration/sidebars';
-import { createFieldExtensionRegistration } from './registration/fields';
-import { createModalRegistration } from './registration/modals';
+
 import { createConfigScreenRegistration } from './registration/config';
 import { createDropdownActionRegistration } from './registration/dropdowns';
 import { createEventHooksRegistration } from './registration/events';
-import type { PluginOptions } from './types';
+import { createFieldExtensionRegistration } from './registration/fields';
+import { createModalRegistration } from './registration/modals';
+import { createOutletRegistration } from './registration/outlets';
+import { createPageRegistration } from './registration/pages';
+import { createSidebarRegistration } from './registration/sidebars';
+import { createDefaultRender } from './render';
+import type { PluginInternalConfig, PluginOptions } from './types';
 
 export function createPluginConfig(options?: PluginOptions) {
   const config: Partial<FullConnectParameters> = {};
-  const render = options?.render ?? createDefaultRender();
 
-  const { addFormOutlet, addCollectionOutlet } = createOutletRegistration(config, render);
-  const { addPage, addMainNavigationTab, addContentAreaSidebarItem, addSettingsAreaSidebarItem } = createPageRegistration(config, render);
-  const { addSidebarPanel, addSidebar } = createSidebarRegistration(config, render);
-  const { addFieldExtension, overrideFieldExtension } = createFieldExtensionRegistration(config, render);
-  const { addModal } = createModalRegistration(config, render);
-  const { configureConfigScreen } = createConfigScreenRegistration(config, render);
-  const { addDropdownAction } = createDropdownActionRegistration(config);
-  const { onBoot, onBeforeItemUpsert, onBeforeItemsDestroy, onBeforeItemsPublish, onBeforeItemsUnpublish } = createEventHooksRegistration(config);
+  // Create shared internal configuration
+  const internalConfig: PluginInternalConfig = {
+    render: options?.render ?? createDefaultRender(),
+    duplicateIdHandling: options?.duplicateIdHandling ?? 'warn',
+  };
+
+  const { addFormOutlet, addCollectionOutlet } = createOutletRegistration(config, internalConfig);
+  const { addPage, addMainNavigationTab, addContentAreaSidebarItem, addSettingsAreaSidebarItem } =
+    createPageRegistration(config, internalConfig);
+  const { addSidebarPanel, addSidebar } = createSidebarRegistration(config, internalConfig);
+  const { addFieldExtension, overrideFieldExtension } = createFieldExtensionRegistration(
+    config,
+    internalConfig,
+  );
+  const { addModal } = createModalRegistration(config, internalConfig);
+  const { configureConfigScreen } = createConfigScreenRegistration(config, internalConfig);
+  const { addDropdownAction } = createDropdownActionRegistration(config, internalConfig);
+  const {
+    onBoot,
+    onBeforeItemUpsert,
+    onBeforeItemsDestroy,
+    onBeforeItemsPublish,
+    onBeforeItemsUnpublish,
+  } = createEventHooksRegistration(config);
 
   const connect = () => {
     return sdkConnect(config);

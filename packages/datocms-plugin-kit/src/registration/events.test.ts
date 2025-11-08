@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+
 import { createPluginConfig } from '../factory';
 
 describe('Event Hooks Registration', () => {
