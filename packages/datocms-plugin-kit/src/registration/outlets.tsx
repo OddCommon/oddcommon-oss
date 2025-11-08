@@ -1,53 +1,49 @@
-import type { FullConnectParameters, RenderItemFormOutletCtx } from 'datocms-plugin-sdk';
-import { validateRequired, validateUniqueId } from '../utils/validation';
-import type { CollectionOutletConfig, FormOutletConfig } from '../types';
+import type { FullConnectParameters } from 'datocms-plugin-sdk';
+
+import type { CollectionOutletConfig, FormOutletConfig, PluginInternalConfig } from '../types';
+import { validateUniqueId } from '../utils/validation';
 
 export function createOutletRegistration(
   config: Partial<FullConnectParameters>,
-  render: (component: React.ReactNode) => void
+  internalConfig: PluginInternalConfig,
 ) {
-  const outletRenderers = new Map<string, React.ComponentType<{ ctx: RenderItemFormOutletCtx }>>();
-  const registeredOutletIds = new Set<string>();
-  const outletConfigs: FormOutletConfig[] = [];
+  const outlets = new Map<string, FormOutletConfig>();
 
   function addFormOutlet(outletConfig: FormOutletConfig) {
-    validateRequired(outletConfig as unknown as Record<string, unknown>, ['id', 'component'], 'Form outlet');
+    const existingIds = Array.from(outlets.keys());
+    validateUniqueId(
+      outletConfig.id,
+      existingIds,
+      'Form outlet',
+      internalConfig.duplicateIdHandling,
+    );
 
-    const existingIds = Array.from(registeredOutletIds);
-    validateUniqueId(outletConfig.id, existingIds, 'Form outlet');
-
-    // Track the registered ID and config
-    registeredOutletIds.add(outletConfig.id);
-    outletConfigs.push(outletConfig);
+    // Store the config (Map.set naturally replaces if duplicate)
+    outlets.set(outletConfig.id, outletConfig);
 
     // Register declaration hook (single function that returns all outlets)
     config.itemFormOutlets = (model, ctx) => {
-      const outlets = outletConfigs
-        .filter(config => !config.shouldApply || config.shouldApply(model, ctx))
-        .map(config => ({
-          id: config.id,
-          initialHeight: config.initialHeight ?? 0,
+      return Array.from(outlets.values())
+        .filter((outlet) => !outlet.shouldApply || outlet.shouldApply(model, ctx))
+        .map((outlet) => ({
+          id: outlet.id,
+          initialHeight: outlet.initialHeight ?? 0,
         }));
-      return outlets;
     };
-
-    // Store component for rendering
-    outletRenderers.set(outletConfig.id, outletConfig.component);
 
     // Register render hook
     if (!config.renderItemFormOutlet) {
       config.renderItemFormOutlet = (outletId, ctx) => {
-        const Component = outletRenderers.get(outletId);
-        if (Component) {
-          render(<Component ctx={ctx} />);
+        const outlet = outlets.get(outletId);
+        if (outlet) {
+          const Component = outlet.component;
+          internalConfig.render(<Component ctx={ctx} />);
         }
       };
     }
   }
 
-  function addCollectionOutlet(outletConfig: CollectionOutletConfig) {
-    validateRequired(outletConfig as unknown as Record<string, unknown>, ['id', 'component'], 'Collection outlet');
-
+  function addCollectionOutlet(_outletConfig: CollectionOutletConfig) {
     // For collection outlets, we'll use a similar approach when implemented
     // For now, just throw the not implemented error
 

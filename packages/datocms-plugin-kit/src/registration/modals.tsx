@@ -1,28 +1,31 @@
-import type { FullConnectParameters, RenderModalCtx } from 'datocms-plugin-sdk';
-import { validateRequired, validateUniqueId } from '../utils/validation';
-import type { ModalConfig } from '../types';
+import type { FullConnectParameters } from 'datocms-plugin-sdk';
+
+import type { ModalConfig, PluginInternalConfig } from '../types';
+import { validateUniqueId } from '../utils/validation';
 
 export function createModalRegistration(
   config: Partial<FullConnectParameters>,
-  render: (component: React.ReactNode) => void
+  internalConfig: PluginInternalConfig,
 ) {
-  const modalRenderers = new Map<string, React.ComponentType<{ ctx: RenderModalCtx }>>();
+  const modals = new Map<string, ModalConfig>();
 
   function addModal(modalConfig: ModalConfig) {
-    validateRequired(modalConfig as unknown as Record<string, unknown>, ['id', 'component'], 'Modal');
+    const existingIds = Array.from(modals.keys());
+    validateUniqueId(modalConfig.id, existingIds, 'Modal', internalConfig.duplicateIdHandling);
 
-    const existingIds = Array.from(modalRenderers.keys());
-    validateUniqueId(modalConfig.id, existingIds, 'Modal');
+    // In warn/ignore mode, the Map.set() below will naturally replace the old entry
+    // In throw mode, validateUniqueId already threw an error
 
-    // Store component for rendering
-    modalRenderers.set(modalConfig.id, modalConfig.component);
+    // Store the config
+    modals.set(modalConfig.id, modalConfig);
 
     // Register render hook
     if (!config.renderModal) {
       config.renderModal = (modalId, ctx) => {
-        const Component = modalRenderers.get(modalId);
-        if (Component) {
-          render(<Component ctx={ctx} />);
+        const modal = modals.get(modalId);
+        if (modal) {
+          const Component = modal.component;
+          internalConfig.render(<Component ctx={ctx} />);
         }
       };
     }

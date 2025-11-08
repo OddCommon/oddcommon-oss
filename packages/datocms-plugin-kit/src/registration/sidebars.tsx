@@ -1,91 +1,85 @@
-import type { FullConnectParameters, ItemFormSidebar, ItemFormSidebarPanel, RenderItemFormSidebarCtx, RenderItemFormSidebarPanelCtx } from 'datocms-plugin-sdk';
-import { validateRequired, validateUniqueId } from '../utils/validation';
-import type { SidebarConfig, SidebarPanelConfig } from '../types';
+import type {
+  FullConnectParameters,
+  ItemFormSidebar,
+  ItemFormSidebarPanel,
+} from 'datocms-plugin-sdk';
+
+import type { PluginInternalConfig, SidebarConfig, SidebarPanelConfig } from '../types';
+import { validateUniqueId } from '../utils/validation';
 
 export function createSidebarRegistration(
   config: Partial<FullConnectParameters>,
-  render: (component: React.ReactNode) => void
+  internalConfig: PluginInternalConfig,
 ) {
-  const sidebarPanelRenderers = new Map<string, React.ComponentType<{ ctx: RenderItemFormSidebarPanelCtx }>>();
-  const sidebarRenderers = new Map<string, React.ComponentType<{ ctx: RenderItemFormSidebarCtx }>>();
-  const registeredPanelIds = new Set<string>();
-  const registeredSidebarIds = new Set<string>();
-  const panelConfigs: SidebarPanelConfig[] = [];
-  const sidebarConfigs: SidebarConfig[] = [];
+  const panels = new Map<string, SidebarPanelConfig>();
+  const sidebars = new Map<string, SidebarConfig>();
 
   function addSidebarPanel(panelConfig: SidebarPanelConfig) {
-    validateRequired(panelConfig as unknown as Record<string, unknown>, ['id', 'label', 'component'], 'Sidebar panel');
+    const existingIds = Array.from(panels.keys());
+    validateUniqueId(
+      panelConfig.id,
+      existingIds,
+      'Sidebar panel',
+      internalConfig.duplicateIdHandling,
+    );
 
-    const existingIds = Array.from(registeredPanelIds);
-    validateUniqueId(panelConfig.id, existingIds, 'Sidebar panel');
-
-    // Track the registered ID and config
-    registeredPanelIds.add(panelConfig.id);
-    panelConfigs.push(panelConfig);
+    // Store the config (Map.set naturally replaces if duplicate)
+    panels.set(panelConfig.id, panelConfig);
 
     // Register declaration hook (single function that returns all panels)
     config.itemFormSidebarPanels = (_model, _ctx) => {
-      const panels = panelConfigs.map(config => {
-        const panel: ItemFormSidebarPanel = {
-          id: config.id,
-          label: config.label,
+      return Array.from(panels.values()).map((panel) => {
+        const result: ItemFormSidebarPanel = {
+          id: panel.id,
+          label: panel.label,
         };
-        if (config.startOpen !== undefined) panel.startOpen = config.startOpen;
-        if (config.placement !== undefined) panel.placement = config.placement;
-        if (config.rank !== undefined) panel.rank = config.rank;
-        return panel;
+        if (panel.startOpen !== undefined) result.startOpen = panel.startOpen;
+        if (panel.placement !== undefined) result.placement = panel.placement;
+        if (panel.rank !== undefined) result.rank = panel.rank;
+        return result;
       });
-      return panels;
     };
-
-    // Store component for rendering
-    sidebarPanelRenderers.set(panelConfig.id, panelConfig.component);
 
     // Register render hook
     if (!config.renderItemFormSidebarPanel) {
       config.renderItemFormSidebarPanel = (panelId, ctx) => {
-        const Component = sidebarPanelRenderers.get(panelId);
-        if (Component) {
-          render(<Component ctx={ctx} />);
+        const panel = panels.get(panelId);
+        if (panel) {
+          const Component = panel.component;
+          internalConfig.render(<Component ctx={ctx} />);
         }
       };
     }
   }
 
   function addSidebar(sidebarConfig: SidebarConfig) {
-    validateRequired(sidebarConfig as unknown as Record<string, unknown>, ['id', 'label', 'component'], 'Sidebar');
+    const existingIds = Array.from(sidebars.keys());
+    validateUniqueId(sidebarConfig.id, existingIds, 'Sidebar', internalConfig.duplicateIdHandling);
 
-    const existingIds = Array.from(registeredSidebarIds);
-    validateUniqueId(sidebarConfig.id, existingIds, 'Sidebar');
-
-    // Track the registered ID and config
-    registeredSidebarIds.add(sidebarConfig.id);
-    sidebarConfigs.push(sidebarConfig);
+    // Store the config (Map.set naturally replaces if duplicate)
+    sidebars.set(sidebarConfig.id, sidebarConfig);
 
     // Register declaration hook (single function that returns all sidebars)
     config.itemFormSidebars = (model, ctx) => {
-      const sidebars = sidebarConfigs
-        .filter(config => !config.shouldApply || config.shouldApply(model, ctx))
-        .map(config => {
-          const sidebar: ItemFormSidebar = {
-            id: config.id,
-            label: config.label,
+      return Array.from(sidebars.values())
+        .filter((sidebar) => !sidebar.shouldApply || sidebar.shouldApply(model, ctx))
+        .map((sidebar) => {
+          const result: ItemFormSidebar = {
+            id: sidebar.id,
+            label: sidebar.label,
           };
-          if (config.preferredWidth !== undefined) sidebar.preferredWidth = config.preferredWidth;
-          return sidebar;
+          if (sidebar.preferredWidth !== undefined) result.preferredWidth = sidebar.preferredWidth;
+          return result;
         });
-      return sidebars;
     };
-
-    // Store component for rendering
-    sidebarRenderers.set(sidebarConfig.id, sidebarConfig.component);
 
     // Register render hook
     if (!config.renderItemFormSidebar) {
       config.renderItemFormSidebar = (sidebarId, ctx) => {
-        const Component = sidebarRenderers.get(sidebarId);
-        if (Component) {
-          render(<Component ctx={ctx} />);
+        const sidebar = sidebars.get(sidebarId);
+        if (sidebar) {
+          const Component = sidebar.component;
+          internalConfig.render(<Component ctx={ctx} />);
         }
       };
     }

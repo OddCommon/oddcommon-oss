@@ -1,48 +1,47 @@
 import type { DropdownAction, FullConnectParameters, Icon } from 'datocms-plugin-sdk';
-import { validateRequired, validateUniqueId } from '../utils/validation';
-import type { DropdownActionConfig, DropdownActionType } from '../types';
+
+import type {
+  DropdownActionConfig,
+  FieldDropdownActionConfig,
+  ItemFormDropdownActionConfig,
+  ItemsDropdownActionConfig,
+  PluginInternalConfig,
+  UploadsDropdownActionConfig,
+} from '../types';
+import { validateUniqueId } from '../utils/validation';
 
 export function createDropdownActionRegistration(
-  config: Partial<FullConnectParameters>
+  config: Partial<FullConnectParameters>,
+  internalConfig: PluginInternalConfig,
 ) {
-  // Separate ID tracking for each type of dropdown action
-  const fieldActionIds = new Set<string>();
-  const itemFormActionIds = new Set<string>();
-  const itemsActionIds = new Set<string>();
-  const uploadsActionIds = new Set<string>();
-
-  // Store action configurations by type
-  const fieldActions = new Map<string, DropdownActionConfig>();
-  const itemFormActions = new Map<string, DropdownActionConfig>();
-  const itemsActions = new Map<string, DropdownActionConfig>();
-  const uploadsActions = new Map<string, DropdownActionConfig>();
-
-  function getTypeLabel(type: DropdownActionType): string {
-    const labels: Record<DropdownActionType, string> = {
-      field: 'Field',
-      itemForm: 'Item form',
-      items: 'Items',
-      uploads: 'Uploads',
-    };
-    return labels[type];
-  }
+  // Store action configurations by type with specific types
+  const fieldActions = new Map<string, FieldDropdownActionConfig>();
+  const itemFormActions = new Map<string, ItemFormDropdownActionConfig>();
+  const itemsActions = new Map<string, ItemsDropdownActionConfig>();
+  const uploadsActions = new Map<string, UploadsDropdownActionConfig>();
 
   function addDropdownAction(actionConfig: DropdownActionConfig) {
-    validateRequired(
-      actionConfig as unknown as Record<string, unknown>,
-      ['type', 'id', 'label', 'execute'],
-      'Dropdown action'
-    );
-
-    const { type, id, label: _label, icon: _icon, execute: _execute, shouldApply: _shouldApply } = actionConfig;
-    const typeLabel = getTypeLabel(type);
+    const {
+      type,
+      id,
+      label: _label,
+      icon: _icon,
+      execute: _execute,
+      shouldApply: _shouldApply,
+    } = actionConfig;
 
     // Route to appropriate handler based on type
     switch (type) {
-      case 'field':
-        validateUniqueId(id, Array.from(fieldActionIds), `${typeLabel} dropdown action`);
-        fieldActionIds.add(id);
-        fieldActions.set(id, actionConfig);
+      case 'field': {
+        validateUniqueId(
+          id,
+          Array.from(fieldActions.keys()),
+          `${type} dropdown action`,
+          internalConfig.duplicateIdHandling,
+        );
+        // In warn/ignore mode, Map.set() below will naturally replace the old entry
+        // In throw mode, validateUniqueId already threw an error
+        fieldActions.set(id, actionConfig as FieldDropdownActionConfig);
 
         // Register declaration hook
         if (!config.fieldDropdownActions) {
@@ -74,11 +73,18 @@ export function createDropdownActionRegistration(
           };
         }
         break;
+      }
 
-      case 'itemForm':
-        validateUniqueId(id, Array.from(itemFormActionIds), `${typeLabel} dropdown action`);
-        itemFormActionIds.add(id);
-        itemFormActions.set(id, actionConfig);
+      case 'itemForm': {
+        validateUniqueId(
+          id,
+          Array.from(itemFormActions.keys()),
+          `${type} dropdown action`,
+          internalConfig.duplicateIdHandling,
+        );
+        // In warn/ignore mode, Map.set() below will naturally replace the old entry
+        // In throw mode, validateUniqueId already threw an error
+        itemFormActions.set(id, actionConfig as ItemFormDropdownActionConfig);
 
         // Register declaration hook
         if (!config.itemFormDropdownActions) {
@@ -110,11 +116,18 @@ export function createDropdownActionRegistration(
           };
         }
         break;
+      }
 
-      case 'items':
-        validateUniqueId(id, Array.from(itemsActionIds), `${typeLabel} dropdown action`);
-        itemsActionIds.add(id);
-        itemsActions.set(id, actionConfig);
+      case 'items': {
+        validateUniqueId(
+          id,
+          Array.from(itemsActions.keys()),
+          `${type} dropdown action`,
+          internalConfig.duplicateIdHandling,
+        );
+        // In warn/ignore mode, Map.set() below will naturally replace the old entry
+        // In throw mode, validateUniqueId already threw an error
+        itemsActions.set(id, actionConfig as ItemsDropdownActionConfig);
 
         // Register declaration hook
         if (!config.itemsDropdownActions) {
@@ -146,11 +159,18 @@ export function createDropdownActionRegistration(
           };
         }
         break;
+      }
 
-      case 'uploads':
-        validateUniqueId(id, Array.from(uploadsActionIds), `${typeLabel} dropdown action`);
-        uploadsActionIds.add(id);
-        uploadsActions.set(id, actionConfig);
+      case 'uploads': {
+        validateUniqueId(
+          id,
+          Array.from(uploadsActions.keys()),
+          `${type} dropdown action`,
+          internalConfig.duplicateIdHandling,
+        );
+        // In warn/ignore mode, Map.set() below will naturally replace the old entry
+        // In throw mode, validateUniqueId already threw an error
+        uploadsActions.set(id, actionConfig as UploadsDropdownActionConfig);
 
         // Register declaration hook
         if (!config.uploadsDropdownActions) {
@@ -182,6 +202,7 @@ export function createDropdownActionRegistration(
           };
         }
         break;
+      }
 
       default:
         throw new Error(`Unknown dropdown action type: ${type}`);

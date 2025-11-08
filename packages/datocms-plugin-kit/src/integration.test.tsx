@@ -1,7 +1,12 @@
+import type {
+  FullConnectParameters,
+  ItemFormOutletsCtx,
+  ItemType,
+  RenderItemFormOutletCtx,
+} from 'datocms-plugin-sdk';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { createPluginConfig } from './factory';
-import type { FullConnectParameters, ItemFormOutletsCtx, ItemType, RenderItemFormOutletCtx } from 'datocms-plugin-sdk';
-import type { FormOutletConfig } from './types';
 
 // Mock to capture the config passed to connect
 let capturedConfig: Partial<FullConnectParameters> | null = null;
@@ -24,9 +29,7 @@ describe('Integration: Form Outlet Registration', () => {
     const plugin = createPluginConfig({ render: customRender });
 
     // Register first outlet
-    const TestComponent1 = ({ ctx: _ctx }: { ctx: RenderItemFormOutletCtx }) => (
-      <div>Outlet 1</div>
-    );
+    const TestComponent1 = ({ ctx: _ctx }: { ctx: RenderItemFormOutletCtx }) => <div>Outlet 1</div>;
     plugin.addFormOutlet({
       id: 'outlet-1',
       component: TestComponent1,
@@ -34,9 +37,7 @@ describe('Integration: Form Outlet Registration', () => {
     });
 
     // Register second outlet with conditional logic
-    const TestComponent2 = ({ ctx: _ctx }: { ctx: RenderItemFormOutletCtx }) => (
-      <div>Outlet 2</div>
-    );
+    const TestComponent2 = ({ ctx: _ctx }: { ctx: RenderItemFormOutletCtx }) => <div>Outlet 2</div>;
     plugin.addFormOutlet({
       id: 'outlet-2',
       component: TestComponent2,
@@ -87,7 +88,7 @@ describe('Integration: Form Outlet Registration', () => {
     expect(customRender).toHaveBeenCalledWith(
       expect.objectContaining({
         type: TestComponent1,
-      })
+      }),
     );
   });
 
@@ -114,7 +115,7 @@ describe('Integration: Form Outlet Registration', () => {
   });
 
   it('should prevent duplicate outlet IDs across registrations', () => {
-    const plugin = createPluginConfig();
+    const plugin = createPluginConfig({ duplicateIdHandling: 'throw' });
     const Component = () => <div>Test</div>;
 
     plugin.addFormOutlet({ id: 'unique-id', component: Component });
@@ -122,18 +123,6 @@ describe('Integration: Form Outlet Registration', () => {
     expect(() => {
       plugin.addFormOutlet({ id: 'unique-id', component: Component });
     }).toThrow('Form outlet with id "unique-id" is already registered');
-  });
-
-  it('should require id and component fields', () => {
-    const plugin = createPluginConfig();
-
-    expect(() => {
-      plugin.addFormOutlet({ id: 'test' } as Partial<FormOutletConfig> as FormOutletConfig);
-    }).toThrow('Form outlet requires field "component"');
-
-    expect(() => {
-      plugin.addFormOutlet({ component: () => <div /> } as Partial<FormOutletConfig> as FormOutletConfig);
-    }).toThrow('Form outlet requires field "id"');
   });
 
   it('should use default initialHeight of 0 when not specified', () => {

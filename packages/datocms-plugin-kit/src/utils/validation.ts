@@ -1,21 +1,22 @@
 export function validateUniqueId(
   id: string,
   existingIds: string[],
-  type: string
-): void {
+  type: string,
+  mode: 'throw' | 'warn' | 'ignore' = 'warn',
+): boolean {
   if (existingIds.includes(id)) {
-    throw new Error(`${type} with id "${id}" is already registered`);
-  }
-}
+    const message = `${type} with id "${id}" is already registered`;
 
-export function validateRequired(
-  obj: Record<string, unknown>,
-  requiredFields: string[],
-  type: string
-): void {
-  for (const field of requiredFields) {
-    if (!(field in obj) || obj[field] === undefined) {
-      throw new Error(`${type} requires field "${field}"`);
+    switch (mode) {
+      case 'throw':
+        throw new Error(message);
+      case 'warn':
+        console.warn(`[datocms-plugin-kit] ${message}`);
+        return false;
+      case 'ignore':
+        return false;
     }
   }
+
+  return true;
 }

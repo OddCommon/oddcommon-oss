@@ -1,7 +1,24 @@
-import { describe, expect, it } from 'vitest';
+import type { FullConnectParameters, ManualFieldExtensionsCtx } from 'datocms-plugin-sdk';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { createPluginConfig } from '../factory';
 
+// Mock to capture the config passed to connect
+let capturedConfig: Partial<FullConnectParameters> | null = null;
+
+vi.mock('datocms-plugin-sdk', () => ({
+  connect: vi.fn((config) => {
+    capturedConfig = config;
+    return Promise.resolve();
+  }),
+}));
+
 describe('Field Extension Registration', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    capturedConfig = null;
+  });
+
   describe('addFieldExtension', () => {
     it('should register a manual field extension', () => {
       const plugin = createPluginConfig();
@@ -18,8 +35,41 @@ describe('Field Extension Registration', () => {
       }).not.toThrow();
     });
 
-    it('should throw on duplicate field extension ID', () => {
+    it('should warn by default on duplicate field extension ID', () => {
       const plugin = createPluginConfig();
+      const TestExtension1 = () => <div>Test Extension 1</div>;
+      const TestExtension2 = () => <div>Test Extension 2</div>;
+      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      plugin.addFieldExtension({
+        id: 'test-extension',
+        name: 'First Name',
+        type: 'editor',
+        fieldTypes: ['string'],
+        component: TestExtension1,
+      });
+
+      plugin.addFieldExtension({
+        id: 'test-extension',
+        name: 'Second Name',
+        type: 'editor',
+        fieldTypes: ['string'],
+        component: TestExtension2,
+      });
+
+      expect(consoleWarnSpy).toHaveBeenCalled();
+      consoleWarnSpy.mockRestore();
+
+      // Verify the second registration replaced the first
+      plugin.connect();
+      const extensions = capturedConfig!.manualFieldExtensions!({} as ManualFieldExtensionsCtx);
+
+      expect(extensions).toHaveLength(1);
+      expect(extensions[0].name).toBe('Second Name');
+    });
+
+    it('should throw on duplicate field extension ID with duplicateIdHandling: throw', () => {
+      const plugin = createPluginConfig({ duplicateIdHandling: 'throw' });
       const TestExtension = () => <div>Test Extension</div>;
 
       plugin.addFieldExtension({
@@ -38,7 +88,40 @@ describe('Field Extension Registration', () => {
           fieldTypes: ['string'],
           component: TestExtension,
         });
-      }).toThrow('Field extension with id "test-extension" is already registered');
+      }).toThrow();
+    });
+
+    it('should silently replace duplicate field extension ID with duplicateIdHandling: ignore', () => {
+      const plugin = createPluginConfig({ duplicateIdHandling: 'ignore' });
+      const TestExtension1 = () => <div>Test Extension 1</div>;
+      const TestExtension2 = () => <div>Test Extension 2</div>;
+      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      plugin.addFieldExtension({
+        id: 'test-extension',
+        name: 'First Name',
+        type: 'editor',
+        fieldTypes: ['string'],
+        component: TestExtension1,
+      });
+
+      plugin.addFieldExtension({
+        id: 'test-extension',
+        name: 'Second Name',
+        type: 'editor',
+        fieldTypes: ['string'],
+        component: TestExtension2,
+      });
+
+      expect(consoleWarnSpy).not.toHaveBeenCalled();
+      consoleWarnSpy.mockRestore();
+
+      // Verify the second registration replaced the first
+      plugin.connect();
+      const extensions = capturedConfig!.manualFieldExtensions!({} as ManualFieldExtensionsCtx);
+
+      expect(extensions).toHaveLength(1);
+      expect(extensions[0].name).toBe('Second Name');
     });
 
     it('should register multiple extensions with different IDs', () => {

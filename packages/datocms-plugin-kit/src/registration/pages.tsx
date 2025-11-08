@@ -1,38 +1,44 @@
-import type { FullConnectParameters, RenderPageCtx } from 'datocms-plugin-sdk';
-import { validateRequired, validateUniqueId } from '../utils/validation';
-import type { ContentAreaSidebarItemConfig, MainNavigationTabConfig, PageConfig } from '../types';
+import type { FullConnectParameters } from 'datocms-plugin-sdk';
+
+import type {
+  ContentAreaSidebarItemConfig,
+  MainNavigationTabConfig,
+  PageConfig,
+  PluginInternalConfig,
+} from '../types';
+import { validateUniqueId } from '../utils/validation';
 
 export function createPageRegistration(
   config: Partial<FullConnectParameters>,
-  render: (component: React.ReactNode) => void
+  internalConfig: PluginInternalConfig,
 ) {
-  const pageRenderers = new Map<string, React.ComponentType<{ ctx: RenderPageCtx }>>();
+  const pages = new Map<string, PageConfig>();
   const mainNavTabs: MainNavigationTabConfig[] = [];
   const contentAreaItems: ContentAreaSidebarItemConfig[] = [];
 
   function addPage(pageConfig: PageConfig) {
-    validateRequired(pageConfig as unknown as Record<string, unknown>, ['pageId', 'component'], 'Page');
+    const existingIds = Array.from(pages.keys());
+    validateUniqueId(pageConfig.pageId, existingIds, 'Page', internalConfig.duplicateIdHandling);
 
-    const existingIds = Array.from(pageRenderers.keys());
-    validateUniqueId(pageConfig.pageId, existingIds, 'Page');
+    // In warn/ignore mode, the Map.set() below will naturally replace the old entry
+    // In throw mode, validateUniqueId already threw an error
 
-    // Store component for rendering
-    pageRenderers.set(pageConfig.pageId, pageConfig.component);
+    // Store the config
+    pages.set(pageConfig.pageId, pageConfig);
 
     // Register render hook
     if (!config.renderPage) {
       config.renderPage = (pageId, ctx) => {
-        const Component = pageRenderers.get(pageId);
-        if (Component) {
-          render(<Component ctx={ctx} />);
+        const page = pages.get(pageId);
+        if (page) {
+          const Component = page.component;
+          internalConfig.render(<Component ctx={ctx} />);
         }
       };
     }
   }
 
   function addMainNavigationTab(tabConfig: MainNavigationTabConfig) {
-    validateRequired(tabConfig as unknown as Record<string, unknown>, ['label', 'icon', 'pointsTo'], 'Main navigation tab');
-
     mainNavTabs.push(tabConfig);
 
     // Register/update the function that returns all tabs
@@ -42,8 +48,6 @@ export function createPageRegistration(
   }
 
   function addContentAreaSidebarItem(itemConfig: ContentAreaSidebarItemConfig) {
-    validateRequired(itemConfig as unknown as Record<string, unknown>, ['label', 'icon', 'pointsTo'], 'Content area sidebar item');
-
     contentAreaItems.push(itemConfig);
 
     // Register/update the function that returns all items
