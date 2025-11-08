@@ -1,7 +1,29 @@
-import { describe, expect, it, vi } from 'vitest';
+import type {
+  ExecuteFieldDropdownActionCtx,
+  ExecuteItemFormDropdownActionCtx,
+  ExecuteItemsDropdownActionCtx,
+  ExecuteUploadsDropdownActionCtx,
+  FullConnectParameters,
+} from 'datocms-plugin-sdk';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { createPluginConfig } from '../factory';
 
+// Mock to capture the config passed to connect
+let capturedConfig: Partial<FullConnectParameters> | null = null;
+
+vi.mock('datocms-plugin-sdk', () => ({
+  connect: vi.fn((config) => {
+    capturedConfig = config;
+    return Promise.resolve();
+  }),
+}));
+
 describe('Dropdown Action Registration', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    capturedConfig = null;
+  });
   describe('Field dropdown actions', () => {
     it('should register a field dropdown action', () => {
       const plugin = createPluginConfig();
@@ -17,8 +39,40 @@ describe('Dropdown Action Registration', () => {
       }).not.toThrow();
     });
 
-    it('should throw on duplicate field dropdown action ID', () => {
+    it('should warn by default on duplicate field dropdown action ID', async () => {
       const plugin = createPluginConfig();
+      const firstExecute = vi.fn();
+      const secondExecute = vi.fn();
+      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      plugin.addDropdownAction({
+        type: 'field',
+        id: 'field-action',
+        label: 'First Action',
+        execute: firstExecute,
+      });
+
+      plugin.addDropdownAction({
+        type: 'field',
+        id: 'field-action',
+        label: 'Second Action',
+        execute: secondExecute,
+      });
+
+      expect(consoleWarnSpy).toHaveBeenCalled();
+      consoleWarnSpy.mockRestore();
+
+      // Verify second registration replaced the first
+      plugin.connect();
+      const mockContext = {} as ExecuteFieldDropdownActionCtx;
+      await capturedConfig!.executeFieldDropdownAction!('field-action', mockContext);
+
+      expect(firstExecute).not.toHaveBeenCalled();
+      expect(secondExecute).toHaveBeenCalledWith(mockContext);
+    });
+
+    it('should throw on duplicate field dropdown action ID with duplicateIdHandling: throw', () => {
+      const plugin = createPluginConfig({ duplicateIdHandling: 'throw' });
       const executeFn = vi.fn();
 
       plugin.addDropdownAction({
@@ -35,7 +89,39 @@ describe('Dropdown Action Registration', () => {
           label: 'Field Action',
           execute: executeFn,
         });
-      }).toThrow('Field dropdown action with id "field-action" is already registered');
+      }).toThrow();
+    });
+
+    it('should silently replace duplicate field action with duplicateIdHandling: ignore', async () => {
+      const plugin = createPluginConfig({ duplicateIdHandling: 'ignore' });
+      const firstExecute = vi.fn();
+      const secondExecute = vi.fn();
+      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      plugin.addDropdownAction({
+        type: 'field',
+        id: 'field-action',
+        label: 'First Action',
+        execute: firstExecute,
+      });
+
+      plugin.addDropdownAction({
+        type: 'field',
+        id: 'field-action',
+        label: 'Second Action',
+        execute: secondExecute,
+      });
+
+      expect(consoleWarnSpy).not.toHaveBeenCalled();
+      consoleWarnSpy.mockRestore();
+
+      // Verify second registration replaced the first
+      plugin.connect();
+      const mockContext = {} as ExecuteFieldDropdownActionCtx;
+      await capturedConfig!.executeFieldDropdownAction!('field-action', mockContext);
+
+      expect(firstExecute).not.toHaveBeenCalled();
+      expect(secondExecute).toHaveBeenCalledWith(mockContext);
     });
   });
 
@@ -54,8 +140,40 @@ describe('Dropdown Action Registration', () => {
       }).not.toThrow();
     });
 
-    it('should throw on duplicate item form dropdown action ID', () => {
+    it('should warn by default on duplicate item form dropdown action ID', async () => {
       const plugin = createPluginConfig();
+      const firstExecute = vi.fn();
+      const secondExecute = vi.fn();
+      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      plugin.addDropdownAction({
+        type: 'itemForm',
+        id: 'item-form-action',
+        label: 'First Action',
+        execute: firstExecute,
+      });
+
+      plugin.addDropdownAction({
+        type: 'itemForm',
+        id: 'item-form-action',
+        label: 'Second Action',
+        execute: secondExecute,
+      });
+
+      expect(consoleWarnSpy).toHaveBeenCalled();
+      consoleWarnSpy.mockRestore();
+
+      // Verify second registration replaced the first
+      plugin.connect();
+      const mockContext = {} as ExecuteItemFormDropdownActionCtx;
+      await capturedConfig!.executeItemFormDropdownAction!('item-form-action', mockContext);
+
+      expect(firstExecute).not.toHaveBeenCalled();
+      expect(secondExecute).toHaveBeenCalledWith(mockContext);
+    });
+
+    it('should throw on duplicate item form dropdown action ID with duplicateIdHandling: throw', () => {
+      const plugin = createPluginConfig({ duplicateIdHandling: 'throw' });
       const executeFn = vi.fn();
 
       plugin.addDropdownAction({
@@ -72,7 +190,39 @@ describe('Dropdown Action Registration', () => {
           label: 'Item Form Action',
           execute: executeFn,
         });
-      }).toThrow('Item form dropdown action with id "item-form-action" is already registered');
+      }).toThrow();
+    });
+
+    it('should silently replace duplicate item form action with duplicateIdHandling: ignore', async () => {
+      const plugin = createPluginConfig({ duplicateIdHandling: 'ignore' });
+      const firstExecute = vi.fn();
+      const secondExecute = vi.fn();
+      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      plugin.addDropdownAction({
+        type: 'itemForm',
+        id: 'item-form-action',
+        label: 'First Action',
+        execute: firstExecute,
+      });
+
+      plugin.addDropdownAction({
+        type: 'itemForm',
+        id: 'item-form-action',
+        label: 'Second Action',
+        execute: secondExecute,
+      });
+
+      expect(consoleWarnSpy).not.toHaveBeenCalled();
+      consoleWarnSpy.mockRestore();
+
+      // Verify second registration replaced the first
+      plugin.connect();
+      const mockContext = {} as ExecuteItemFormDropdownActionCtx;
+      await capturedConfig!.executeItemFormDropdownAction!('item-form-action', mockContext);
+
+      expect(firstExecute).not.toHaveBeenCalled();
+      expect(secondExecute).toHaveBeenCalledWith(mockContext);
     });
   });
 
@@ -91,8 +241,40 @@ describe('Dropdown Action Registration', () => {
       }).not.toThrow();
     });
 
-    it('should throw on duplicate items dropdown action ID', () => {
+    it('should warn by default on duplicate items dropdown action ID', async () => {
       const plugin = createPluginConfig();
+      const firstExecute = vi.fn();
+      const secondExecute = vi.fn();
+      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      plugin.addDropdownAction({
+        type: 'items',
+        id: 'items-action',
+        label: 'First Action',
+        execute: firstExecute,
+      });
+
+      plugin.addDropdownAction({
+        type: 'items',
+        id: 'items-action',
+        label: 'Second Action',
+        execute: secondExecute,
+      });
+
+      expect(consoleWarnSpy).toHaveBeenCalled();
+      consoleWarnSpy.mockRestore();
+
+      // Verify second registration replaced the first
+      plugin.connect();
+      const mockContext = {} as ExecuteItemsDropdownActionCtx;
+      await capturedConfig!.executeItemsDropdownAction!('items-action', [], mockContext);
+
+      expect(firstExecute).not.toHaveBeenCalled();
+      expect(secondExecute).toHaveBeenCalledWith(mockContext);
+    });
+
+    it('should throw on duplicate items dropdown action ID with duplicateIdHandling: throw', () => {
+      const plugin = createPluginConfig({ duplicateIdHandling: 'throw' });
       const executeFn = vi.fn();
 
       plugin.addDropdownAction({
@@ -109,7 +291,39 @@ describe('Dropdown Action Registration', () => {
           label: 'Items Action',
           execute: executeFn,
         });
-      }).toThrow('Items dropdown action with id "items-action" is already registered');
+      }).toThrow();
+    });
+
+    it('should silently replace duplicate items action with duplicateIdHandling: ignore', async () => {
+      const plugin = createPluginConfig({ duplicateIdHandling: 'ignore' });
+      const firstExecute = vi.fn();
+      const secondExecute = vi.fn();
+      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      plugin.addDropdownAction({
+        type: 'items',
+        id: 'items-action',
+        label: 'First Action',
+        execute: firstExecute,
+      });
+
+      plugin.addDropdownAction({
+        type: 'items',
+        id: 'items-action',
+        label: 'Second Action',
+        execute: secondExecute,
+      });
+
+      expect(consoleWarnSpy).not.toHaveBeenCalled();
+      consoleWarnSpy.mockRestore();
+
+      // Verify second registration replaced the first
+      plugin.connect();
+      const mockContext = {} as ExecuteItemsDropdownActionCtx;
+      await capturedConfig!.executeItemsDropdownAction!('items-action', [], mockContext);
+
+      expect(firstExecute).not.toHaveBeenCalled();
+      expect(secondExecute).toHaveBeenCalledWith(mockContext);
     });
   });
 
@@ -128,8 +342,40 @@ describe('Dropdown Action Registration', () => {
       }).not.toThrow();
     });
 
-    it('should throw on duplicate uploads dropdown action ID', () => {
+    it('should warn by default on duplicate uploads dropdown action ID', async () => {
       const plugin = createPluginConfig();
+      const firstExecute = vi.fn();
+      const secondExecute = vi.fn();
+      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      plugin.addDropdownAction({
+        type: 'uploads',
+        id: 'uploads-action',
+        label: 'First Action',
+        execute: firstExecute,
+      });
+
+      plugin.addDropdownAction({
+        type: 'uploads',
+        id: 'uploads-action',
+        label: 'Second Action',
+        execute: secondExecute,
+      });
+
+      expect(consoleWarnSpy).toHaveBeenCalled();
+      consoleWarnSpy.mockRestore();
+
+      // Verify second registration replaced the first
+      plugin.connect();
+      const mockContext = {} as ExecuteUploadsDropdownActionCtx;
+      await capturedConfig!.executeUploadsDropdownAction!('uploads-action', [], mockContext);
+
+      expect(firstExecute).not.toHaveBeenCalled();
+      expect(secondExecute).toHaveBeenCalledWith(mockContext);
+    });
+
+    it('should throw on duplicate uploads dropdown action ID with duplicateIdHandling: throw', () => {
+      const plugin = createPluginConfig({ duplicateIdHandling: 'throw' });
       const executeFn = vi.fn();
 
       plugin.addDropdownAction({
@@ -146,7 +392,39 @@ describe('Dropdown Action Registration', () => {
           label: 'Uploads Action',
           execute: executeFn,
         });
-      }).toThrow('Uploads dropdown action with id "uploads-action" is already registered');
+      }).toThrow();
+    });
+
+    it('should silently replace duplicate uploads action with duplicateIdHandling: ignore', async () => {
+      const plugin = createPluginConfig({ duplicateIdHandling: 'ignore' });
+      const firstExecute = vi.fn();
+      const secondExecute = vi.fn();
+      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      plugin.addDropdownAction({
+        type: 'uploads',
+        id: 'uploads-action',
+        label: 'First Action',
+        execute: firstExecute,
+      });
+
+      plugin.addDropdownAction({
+        type: 'uploads',
+        id: 'uploads-action',
+        label: 'Second Action',
+        execute: secondExecute,
+      });
+
+      expect(consoleWarnSpy).not.toHaveBeenCalled();
+      consoleWarnSpy.mockRestore();
+
+      // Verify second registration replaced the first
+      plugin.connect();
+      const mockContext = {} as ExecuteUploadsDropdownActionCtx;
+      await capturedConfig!.executeUploadsDropdownAction!('uploads-action', [], mockContext);
+
+      expect(firstExecute).not.toHaveBeenCalled();
+      expect(secondExecute).toHaveBeenCalledWith(mockContext);
     });
   });
 

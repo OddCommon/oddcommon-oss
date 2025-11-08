@@ -1,6 +1,7 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createDefaultRender } from './render';
 import { StrictMode } from 'react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { createDefaultRender } from './render';
 
 // Mock react-dom/client
 vi.mock('react-dom/client', () => ({
@@ -53,7 +54,7 @@ describe('createDefaultRender', () => {
     expect(mockRender).toHaveBeenCalledWith(
       expect.objectContaining({
         type: StrictMode,
-      })
+      }),
     );
   });
 
