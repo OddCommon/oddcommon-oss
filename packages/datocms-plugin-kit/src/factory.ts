@@ -9,6 +9,7 @@ import { createModalRegistration } from './registration/modals';
 import { createOutletRegistration } from './registration/outlets';
 import { createPageRegistration } from './registration/pages';
 import { createSidebarRegistration } from './registration/sidebars';
+import { createStructuredTextCustomizationRegistration } from './registration/structured-text';
 import { createDefaultRender } from './render';
 import type { PluginInternalConfig, PluginOptions } from './types';
 
@@ -39,6 +40,8 @@ export function createPluginConfig(options?: PluginOptions) {
     onBeforeItemsPublish,
     onBeforeItemsUnpublish,
   } = createEventHooksRegistration(config);
+  const { customBlockStylesForStructuredTextField, customMarksForStructuredTextField } =
+    createStructuredTextCustomizationRegistration(config, internalConfig);
 
   const connect = () => {
     return sdkConnect(config);
@@ -63,6 +66,8 @@ export function createPluginConfig(options?: PluginOptions) {
     onBeforeItemsDestroy,
     onBeforeItemsPublish,
     onBeforeItemsUnpublish,
+    customBlockStylesForStructuredTextField,
+    customMarksForStructuredTextField,
     connect,
   };
 }
