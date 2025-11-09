@@ -20,14 +20,21 @@ pnpm add @oddcommon/datocms-plugin-kit
 // ~/plugin.ts
 import { createPluginConfig } from '@oddcommon/datocms-plugin-kit';
 
-export const { addFormOutlet, addPage, addMainNavigationTab, addSidebarPanel, connect } =
-  createPluginConfig({
-    // Optional: custom render function
-    // If omitted, uses React 19's createRoot with StrictMode
-    render: (component) => {
-      // your custom render
-    },
-  });
+export const {
+  addFormOutlet,
+  addPage,
+  addMainNavigationTab,
+  addSidebarPanel,
+  customBlockStylesForStructuredTextField,
+  customMarksForStructuredTextField,
+  connect,
+} = createPluginConfig({
+  // Optional: custom render function
+  // If omitted, uses React 19's createRoot with StrictMode
+  render: (component) => {
+    // your custom render
+  },
+});
 ```
 
 ### 2. Register Hooks from Any File
@@ -322,6 +329,82 @@ addDropdownAction({
   },
 });
 ```
+
+### Structured Text Customizations
+
+#### `customBlockStylesForStructuredTextField(handler)`
+
+Add custom block styles to structured text fields (e.g., emphasized paragraphs, special headings).
+
+**Handler:** `(field: Field, ctx: CustomBlockStylesForStructuredTextFieldCtx) => StructuredTextCustomBlockStyle[] | undefined`
+
+```typescript
+customBlockStylesForStructuredTextField((field, ctx) => {
+  // Only apply to specific fields
+  if (field.attributes.api_key !== 'article_content') {
+    return [];
+  }
+
+  return [
+    {
+      id: 'emphasized',
+      node: 'paragraph',
+      label: 'Emphasized',
+      appliedStyle: {
+        fontFamily: 'Georgia',
+        fontStyle: 'italic',
+        fontSize: '1.4em',
+        lineHeight: '1.2',
+      },
+    },
+    {
+      id: 'callout',
+      node: 'heading',
+      label: 'Callout Heading',
+      appliedStyle: {
+        backgroundColor: '#f0f0f0',
+        padding: '0.5em',
+      },
+    },
+  ];
+});
+```
+
+#### `customMarksForStructuredTextField(handler)`
+
+Add custom marks to structured text fields (e.g., spoiler text, custom highlights).
+
+**Handler:** `(field: Field, ctx: CustomMarksForStructuredTextFieldCtx) => StructuredTextCustomMark[] | undefined`
+
+```typescript
+customMarksForStructuredTextField((field, ctx) => {
+  return [
+    {
+      id: 'spoiler',
+      label: 'Spoiler',
+      icon: 'bomb',
+      keyboardShortcut: 'mod+shift+s',
+      appliedStyle: {
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        color: 'rgba(0, 0, 0, 0.8)',
+      },
+    },
+    {
+      id: 'keyboard',
+      label: 'Keyboard',
+      icon: 'keyboard',
+      appliedStyle: {
+        fontFamily: 'monospace',
+        backgroundColor: '#f0f0f0',
+        padding: '0.2em 0.4em',
+        borderRadius: '3px',
+      },
+    },
+  ];
+});
+```
+
+**Note:** You're responsible for rendering these custom styles and marks on the frontend using DatoCMS's Structured Text libraries (React, Vue, etc.).
 
 ### Events
 
