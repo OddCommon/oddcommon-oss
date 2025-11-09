@@ -7,5 +7,7 @@ export const {
   addSidebarPanel,
   addFieldExtension,
   overrideFieldExtension,
+  customBlockStylesForStructuredTextField,
+  customMarksForStructuredTextField,
   connect,
 } = createPluginConfig();

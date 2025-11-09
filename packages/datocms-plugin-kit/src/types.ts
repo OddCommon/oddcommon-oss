@@ -1,4 +1,6 @@
 import type {
+  CustomBlockStylesForStructuredTextFieldCtx,
+  CustomMarksForStructuredTextFieldCtx,
   ExecuteFieldDropdownActionCtx,
   ExecuteItemFormDropdownActionCtx,
   ExecuteItemsDropdownActionCtx,
@@ -27,6 +29,8 @@ import type {
   RenderManualFieldExtensionConfigScreenCtx,
   RenderModalCtx,
   RenderPageCtx,
+  StructuredTextCustomBlockStyle,
+  StructuredTextCustomMark,
 } from 'datocms-plugin-sdk';
 
 // Duplicate ID handling modes
@@ -190,3 +194,14 @@ export type OnBeforeItemsUnpublishHandler = (
   items: Item[],
   ctx: OnBeforeItemsUnpublishCtx,
 ) => boolean | Promise<boolean>;
+
+// Structured Text Customizations
+export type CustomBlockStylesForStructuredTextFieldHandler = (
+  field: Field,
+  ctx: CustomBlockStylesForStructuredTextFieldCtx,
+) => StructuredTextCustomBlockStyle[] | undefined;
+
+export type CustomMarksForStructuredTextFieldHandler = (
+  field: Field,
+  ctx: CustomMarksForStructuredTextFieldCtx,
+) => StructuredTextCustomMark[] | undefined;
