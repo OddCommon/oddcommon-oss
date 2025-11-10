@@ -1,4 +1,5 @@
 export { createPluginConfig } from './factory';
+export * from './helpers';
 export type {
   PluginOptions,
   FormOutletConfig,
