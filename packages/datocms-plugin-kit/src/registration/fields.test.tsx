@@ -13,6 +13,9 @@ vi.mock('datocms-plugin-sdk', () => ({
   }),
 }));
 
+// Helper mock render function for tests
+const mockRender = vi.fn();
+
 describe('Field Extension Registration', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -21,7 +24,7 @@ describe('Field Extension Registration', () => {
 
   describe('addFieldExtension', () => {
     it('should register a manual field extension', () => {
-      const plugin = createPluginConfig();
+      const plugin = createPluginConfig({ render: mockRender });
       const TestExtension = () => <div>Test Extension</div>;
 
       expect(() => {
@@ -36,7 +39,7 @@ describe('Field Extension Registration', () => {
     });
 
     it('should warn by default on duplicate field extension ID', () => {
-      const plugin = createPluginConfig();
+      const plugin = createPluginConfig({ render: mockRender });
       const TestExtension1 = () => <div>Test Extension 1</div>;
       const TestExtension2 = () => <div>Test Extension 2</div>;
       const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
@@ -69,7 +72,7 @@ describe('Field Extension Registration', () => {
     });
 
     it('should throw on duplicate field extension ID with duplicateIdHandling: throw', () => {
-      const plugin = createPluginConfig({ duplicateIdHandling: 'throw' });
+      const plugin = createPluginConfig({ render: mockRender, duplicateIdHandling: 'throw' });
       const TestExtension = () => <div>Test Extension</div>;
 
       plugin.addFieldExtension({
@@ -92,7 +95,7 @@ describe('Field Extension Registration', () => {
     });
 
     it('should silently replace duplicate field extension ID with duplicateIdHandling: ignore', () => {
-      const plugin = createPluginConfig({ duplicateIdHandling: 'ignore' });
+      const plugin = createPluginConfig({ render: mockRender, duplicateIdHandling: 'ignore' });
       const TestExtension1 = () => <div>Test Extension 1</div>;
       const TestExtension2 = () => <div>Test Extension 2</div>;
       const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
@@ -125,7 +128,7 @@ describe('Field Extension Registration', () => {
     });
 
     it('should register multiple extensions with different IDs', () => {
-      const plugin = createPluginConfig();
+      const plugin = createPluginConfig({ render: mockRender });
       const TestExtension = () => <div>Test Extension</div>;
 
       expect(() => {
@@ -147,7 +150,7 @@ describe('Field Extension Registration', () => {
     });
 
     it('should support configurable extensions', () => {
-      const plugin = createPluginConfig();
+      const plugin = createPluginConfig({ render: mockRender });
       const TestExtension = () => <div>Test Extension</div>;
       const ConfigScreen = () => <div>Config Screen</div>;
       const validateConfig = (params: Record<string, unknown>) => {
@@ -173,7 +176,7 @@ describe('Field Extension Registration', () => {
     });
 
     it('should support non-configurable extensions', () => {
-      const plugin = createPluginConfig();
+      const plugin = createPluginConfig({ render: mockRender });
       const TestExtension = () => <div>Test Extension</div>;
 
       expect(() => {
@@ -191,7 +194,7 @@ describe('Field Extension Registration', () => {
 
   describe('overrideFieldExtension', () => {
     it('should register a field extension override', () => {
-      const plugin = createPluginConfig();
+      const plugin = createPluginConfig({ render: mockRender });
 
       expect(() => {
         plugin.overrideFieldExtension({
@@ -202,7 +205,7 @@ describe('Field Extension Registration', () => {
     });
 
     it('should support addons in overrides', () => {
-      const plugin = createPluginConfig();
+      const plugin = createPluginConfig({ render: mockRender });
 
       expect(() => {
         plugin.overrideFieldExtension({
@@ -216,7 +219,7 @@ describe('Field Extension Registration', () => {
     });
 
     it('should support both editor and addons in overrides', () => {
-      const plugin = createPluginConfig();
+      const plugin = createPluginConfig({ render: mockRender });
 
       expect(() => {
         plugin.overrideFieldExtension({
@@ -228,7 +231,7 @@ describe('Field Extension Registration', () => {
     });
 
     it('should allow multiple overrides with different conditions', () => {
-      const plugin = createPluginConfig();
+      const plugin = createPluginConfig({ render: mockRender });
 
       expect(() => {
         plugin.overrideFieldExtension({

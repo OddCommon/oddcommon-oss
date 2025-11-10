@@ -13,6 +13,9 @@ vi.mock('datocms-plugin-sdk', () => ({
   }),
 }));
 
+// Helper mock render function for tests
+const mockRender = vi.fn();
+
 describe('Modal Registration', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -20,7 +23,7 @@ describe('Modal Registration', () => {
   });
 
   it('should register a modal', () => {
-    const plugin = createPluginConfig();
+    const plugin = createPluginConfig({ render: mockRender });
     const TestModal = () => <div>Test Modal</div>;
 
     expect(() => {
@@ -57,7 +60,7 @@ describe('Modal Registration', () => {
   });
 
   it('should throw on duplicate modal ID with duplicateIdHandling: throw', () => {
-    const plugin = createPluginConfig({ duplicateIdHandling: 'throw' });
+    const plugin = createPluginConfig({ render: mockRender, duplicateIdHandling: 'throw' });
     const TestModal = () => <div>Test Modal</div>;
 
     plugin.addModal({
@@ -99,7 +102,7 @@ describe('Modal Registration', () => {
   });
 
   it('should register multiple modals with different IDs', () => {
-    const plugin = createPluginConfig();
+    const plugin = createPluginConfig({ render: mockRender });
     const TestModal1 = () => <div>Test Modal 1</div>;
     const TestModal2 = () => <div>Test Modal 2</div>;
 

@@ -19,6 +19,9 @@ vi.mock('datocms-plugin-sdk', () => ({
   }),
 }));
 
+// Helper mock render function for tests
+const mockRender = vi.fn();
+
 describe('Structured Text Customizations', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -27,7 +30,7 @@ describe('Structured Text Customizations', () => {
 
   describe('customBlockStylesForStructuredTextField', () => {
     it('should register a custom block styles handler', () => {
-      const plugin = createPluginConfig();
+      const plugin = createPluginConfig({ render: mockRender });
       const mockField = { attributes: { api_key: 'content' } } as Field;
       const mockCtx = {} as CustomBlockStylesForStructuredTextFieldCtx;
 
@@ -59,7 +62,7 @@ describe('Structured Text Customizations', () => {
     });
 
     it('should warn when handler is registered twice', () => {
-      const plugin = createPluginConfig();
+      const plugin = createPluginConfig({ render: mockRender });
       const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
       const handler1 = () => [];
@@ -76,7 +79,7 @@ describe('Structured Text Customizations', () => {
     });
 
     it('should replace the first handler with the second', () => {
-      const plugin = createPluginConfig();
+      const plugin = createPluginConfig({ render: mockRender });
       const mockField = { attributes: { api_key: 'content' } } as Field;
       const mockCtx = {} as CustomBlockStylesForStructuredTextFieldCtx;
 
@@ -110,7 +113,7 @@ describe('Structured Text Customizations', () => {
 
   describe('customMarksForStructuredTextField', () => {
     it('should register a custom marks handler', () => {
-      const plugin = createPluginConfig();
+      const plugin = createPluginConfig({ render: mockRender });
       const mockField = { attributes: { api_key: 'content' } } as Field;
       const mockCtx = {} as CustomMarksForStructuredTextFieldCtx;
 
@@ -140,7 +143,7 @@ describe('Structured Text Customizations', () => {
     });
 
     it('should warn when handler is registered twice', () => {
-      const plugin = createPluginConfig();
+      const plugin = createPluginConfig({ render: mockRender });
       const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
       const handler1 = () => [];
@@ -157,7 +160,7 @@ describe('Structured Text Customizations', () => {
     });
 
     it('should replace the first handler with the second', () => {
-      const plugin = createPluginConfig();
+      const plugin = createPluginConfig({ render: mockRender });
       const mockField = { attributes: { api_key: 'content' } } as Field;
       const mockCtx = {} as CustomMarksForStructuredTextFieldCtx;
 

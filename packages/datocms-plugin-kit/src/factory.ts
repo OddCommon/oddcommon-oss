@@ -10,16 +10,15 @@ import { createOutletRegistration } from './registration/outlets';
 import { createPageRegistration } from './registration/pages';
 import { createSidebarRegistration } from './registration/sidebars';
 import { createStructuredTextCustomizationRegistration } from './registration/structured-text';
-import { createDefaultRender } from './render';
 import type { PluginInternalConfig, PluginOptions } from './types';
 
-export function createPluginConfig(options?: PluginOptions) {
+export function createPluginConfig(options: PluginOptions) {
   const config: Partial<FullConnectParameters> = {};
 
   // Create shared internal configuration
   const internalConfig: PluginInternalConfig = {
-    render: options?.render ?? createDefaultRender(),
-    duplicateIdHandling: options?.duplicateIdHandling ?? 'warn',
+    render: options.render,
+    duplicateIdHandling: options.duplicateIdHandling ?? 'warn',
   };
 
   const { addFormOutlet, addCollectionOutlet } = createOutletRegistration(config, internalConfig);

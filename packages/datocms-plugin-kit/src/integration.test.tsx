@@ -18,6 +18,9 @@ vi.mock('datocms-plugin-sdk', () => ({
   }),
 }));
 
+// Helper mock render function for tests
+const mockRender = vi.fn();
+
 describe('Integration: Form Outlet Registration', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -93,7 +96,7 @@ describe('Integration: Form Outlet Registration', () => {
   });
 
   it('should handle multiple registrations and maintain state', () => {
-    const plugin = createPluginConfig();
+    const plugin = createPluginConfig({ render: mockRender });
 
     const Component = () => <div>Test</div>;
 
@@ -115,7 +118,7 @@ describe('Integration: Form Outlet Registration', () => {
   });
 
   it('should prevent duplicate outlet IDs across registrations', () => {
-    const plugin = createPluginConfig({ duplicateIdHandling: 'throw' });
+    const plugin = createPluginConfig({ render: mockRender, duplicateIdHandling: 'throw' });
     const Component = () => <div>Test</div>;
 
     plugin.addFormOutlet({ id: 'unique-id', component: Component });
@@ -126,7 +129,7 @@ describe('Integration: Form Outlet Registration', () => {
   });
 
   it('should use default initialHeight of 0 when not specified', () => {
-    const plugin = createPluginConfig();
+    const plugin = createPluginConfig({ render: mockRender });
     const Component = () => <div>Test</div>;
 
     plugin.addFormOutlet({

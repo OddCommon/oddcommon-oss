@@ -1,5 +1,7 @@
 import { createPluginConfig } from '@oddcommon/datocms-plugin-kit';
 
+import { render } from './render';
+
 export const {
   addFormOutlet,
   addPage,
@@ -10,4 +12,6 @@ export const {
   customBlockStylesForStructuredTextField,
   customMarksForStructuredTextField,
   connect,
-} = createPluginConfig();
+} = createPluginConfig({
+  render,
+});
