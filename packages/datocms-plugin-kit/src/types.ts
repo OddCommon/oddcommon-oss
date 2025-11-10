@@ -38,7 +38,7 @@ export type DuplicateIdHandling = 'throw' | 'warn' | 'ignore';
 
 // Plugin configuration
 export interface PluginOptions {
-  render?: (component: React.ReactNode) => void;
+  render: (component: React.ReactNode) => void;
   duplicateIdHandling?: DuplicateIdHandling;
 }
 

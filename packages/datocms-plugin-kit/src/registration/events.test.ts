@@ -2,10 +2,13 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { createPluginConfig } from '../factory';
 
+// Helper mock render function for tests
+const mockRender = vi.fn();
+
 describe('Event Hooks Registration', () => {
   describe('onBoot', () => {
     it('should register onBoot handler', () => {
-      const plugin = createPluginConfig();
+      const plugin = createPluginConfig({ render: mockRender });
       const handler = vi.fn();
 
       expect(() => {
@@ -14,7 +17,7 @@ describe('Event Hooks Registration', () => {
     });
 
     it('should call onBoot handler when registered', () => {
-      const plugin = createPluginConfig();
+      const plugin = createPluginConfig({ render: mockRender });
       const handler = vi.fn();
 
       plugin.onBoot(handler);
@@ -25,7 +28,7 @@ describe('Event Hooks Registration', () => {
 
   describe('onBeforeItemUpsert', () => {
     it('should register onBeforeItemUpsert handler', () => {
-      const plugin = createPluginConfig();
+      const plugin = createPluginConfig({ render: mockRender });
       const handler = vi.fn();
 
       expect(() => {
@@ -34,7 +37,7 @@ describe('Event Hooks Registration', () => {
     });
 
     it('should allow multiple onBeforeItemUpsert handlers', () => {
-      const plugin = createPluginConfig();
+      const plugin = createPluginConfig({ render: mockRender });
       const handler1 = vi.fn();
       const handler2 = vi.fn();
 
@@ -47,7 +50,7 @@ describe('Event Hooks Registration', () => {
 
   describe('onBeforeItemsDestroy', () => {
     it('should register onBeforeItemsDestroy handler', () => {
-      const plugin = createPluginConfig();
+      const plugin = createPluginConfig({ render: mockRender });
       const handler = vi.fn();
 
       expect(() => {
@@ -56,7 +59,7 @@ describe('Event Hooks Registration', () => {
     });
 
     it('should allow multiple onBeforeItemsDestroy handlers', () => {
-      const plugin = createPluginConfig();
+      const plugin = createPluginConfig({ render: mockRender });
       const handler1 = vi.fn();
       const handler2 = vi.fn();
 
@@ -69,7 +72,7 @@ describe('Event Hooks Registration', () => {
 
   describe('onBeforeItemsPublish', () => {
     it('should register onBeforeItemsPublish handler', () => {
-      const plugin = createPluginConfig();
+      const plugin = createPluginConfig({ render: mockRender });
       const handler = vi.fn();
 
       expect(() => {
@@ -78,7 +81,7 @@ describe('Event Hooks Registration', () => {
     });
 
     it('should allow multiple onBeforeItemsPublish handlers', () => {
-      const plugin = createPluginConfig();
+      const plugin = createPluginConfig({ render: mockRender });
       const handler1 = vi.fn();
       const handler2 = vi.fn();
 
@@ -91,7 +94,7 @@ describe('Event Hooks Registration', () => {
 
   describe('onBeforeItemsUnpublish', () => {
     it('should register onBeforeItemsUnpublish handler', () => {
-      const plugin = createPluginConfig();
+      const plugin = createPluginConfig({ render: mockRender });
       const handler = vi.fn();
 
       expect(() => {
@@ -100,7 +103,7 @@ describe('Event Hooks Registration', () => {
     });
 
     it('should allow multiple onBeforeItemsUnpublish handlers', () => {
-      const plugin = createPluginConfig();
+      const plugin = createPluginConfig({ render: mockRender });
       const handler1 = vi.fn();
       const handler2 = vi.fn();
 
