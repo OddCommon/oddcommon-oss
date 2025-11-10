@@ -17,6 +17,9 @@ vi.mock('datocms-plugin-sdk', () => ({
   }),
 }));
 
+// Helper mock render function for tests
+const mockRender = vi.fn();
+
 describe('Sidebar Registration', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -24,7 +27,7 @@ describe('Sidebar Registration', () => {
   });
   describe('addSidebarPanel', () => {
     it('should register a sidebar panel', () => {
-      const plugin = createPluginConfig();
+      const plugin = createPluginConfig({ render: mockRender });
       const TestPanel = () => <div>Test Panel</div>;
 
       expect(() => {
@@ -62,7 +65,7 @@ describe('Sidebar Registration', () => {
     });
 
     it('should throw on duplicate panel ID with duplicateIdHandling: throw', () => {
-      const plugin = createPluginConfig({ duplicateIdHandling: 'throw' });
+      const plugin = createPluginConfig({ render: mockRender, duplicateIdHandling: 'throw' });
       const TestPanel = () => <div>Test Panel</div>;
 
       plugin.addSidebarPanel({
@@ -106,7 +109,7 @@ describe('Sidebar Registration', () => {
     });
 
     it('should register multiple panels with different IDs', () => {
-      const plugin = createPluginConfig();
+      const plugin = createPluginConfig({ render: mockRender });
       const TestPanel = () => <div>Test Panel</div>;
 
       expect(() => {
@@ -116,7 +119,7 @@ describe('Sidebar Registration', () => {
     });
 
     it('should support optional configuration', () => {
-      const plugin = createPluginConfig();
+      const plugin = createPluginConfig({ render: mockRender });
       const TestPanel = () => <div>Test Panel</div>;
 
       expect(() => {
@@ -134,7 +137,7 @@ describe('Sidebar Registration', () => {
 
   describe('addSidebar', () => {
     it('should register a full sidebar', () => {
-      const plugin = createPluginConfig();
+      const plugin = createPluginConfig({ render: mockRender });
       const TestSidebar = () => <div>Test Sidebar</div>;
 
       expect(() => {
@@ -181,7 +184,7 @@ describe('Sidebar Registration', () => {
     });
 
     it('should throw on duplicate sidebar ID with duplicateIdHandling: throw', () => {
-      const plugin = createPluginConfig({ duplicateIdHandling: 'throw' });
+      const plugin = createPluginConfig({ render: mockRender, duplicateIdHandling: 'throw' });
       const TestSidebar = () => <div>Test Sidebar</div>;
 
       plugin.addSidebar({
@@ -225,7 +228,7 @@ describe('Sidebar Registration', () => {
     });
 
     it('should support optional configuration', () => {
-      const plugin = createPluginConfig();
+      const plugin = createPluginConfig({ render: mockRender });
       const TestSidebar = () => <div>Test Sidebar</div>;
 
       expect(() => {

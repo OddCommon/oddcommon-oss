@@ -19,6 +19,9 @@ vi.mock('datocms-plugin-sdk', () => ({
   }),
 }));
 
+// Helper mock render function for tests
+const mockRender = vi.fn();
+
 describe('Dropdown Action Registration', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -26,7 +29,7 @@ describe('Dropdown Action Registration', () => {
   });
   describe('Field dropdown actions', () => {
     it('should register a field dropdown action', () => {
-      const plugin = createPluginConfig();
+      const plugin = createPluginConfig({ render: mockRender });
       const executeFn = vi.fn();
 
       expect(() => {
@@ -40,7 +43,7 @@ describe('Dropdown Action Registration', () => {
     });
 
     it('should warn by default on duplicate field dropdown action ID', async () => {
-      const plugin = createPluginConfig();
+      const plugin = createPluginConfig({ render: mockRender });
       const firstExecute = vi.fn();
       const secondExecute = vi.fn();
       const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
@@ -72,7 +75,7 @@ describe('Dropdown Action Registration', () => {
     });
 
     it('should throw on duplicate field dropdown action ID with duplicateIdHandling: throw', () => {
-      const plugin = createPluginConfig({ duplicateIdHandling: 'throw' });
+      const plugin = createPluginConfig({ render: mockRender, duplicateIdHandling: 'throw' });
       const executeFn = vi.fn();
 
       plugin.addDropdownAction({
@@ -93,7 +96,7 @@ describe('Dropdown Action Registration', () => {
     });
 
     it('should silently replace duplicate field action with duplicateIdHandling: ignore', async () => {
-      const plugin = createPluginConfig({ duplicateIdHandling: 'ignore' });
+      const plugin = createPluginConfig({ render: mockRender, duplicateIdHandling: 'ignore' });
       const firstExecute = vi.fn();
       const secondExecute = vi.fn();
       const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
@@ -127,7 +130,7 @@ describe('Dropdown Action Registration', () => {
 
   describe('Item form dropdown actions', () => {
     it('should register an item form dropdown action', () => {
-      const plugin = createPluginConfig();
+      const plugin = createPluginConfig({ render: mockRender });
       const executeFn = vi.fn();
 
       expect(() => {
@@ -141,7 +144,7 @@ describe('Dropdown Action Registration', () => {
     });
 
     it('should warn by default on duplicate item form dropdown action ID', async () => {
-      const plugin = createPluginConfig();
+      const plugin = createPluginConfig({ render: mockRender });
       const firstExecute = vi.fn();
       const secondExecute = vi.fn();
       const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
@@ -173,7 +176,7 @@ describe('Dropdown Action Registration', () => {
     });
 
     it('should throw on duplicate item form dropdown action ID with duplicateIdHandling: throw', () => {
-      const plugin = createPluginConfig({ duplicateIdHandling: 'throw' });
+      const plugin = createPluginConfig({ render: mockRender, duplicateIdHandling: 'throw' });
       const executeFn = vi.fn();
 
       plugin.addDropdownAction({
@@ -194,7 +197,7 @@ describe('Dropdown Action Registration', () => {
     });
 
     it('should silently replace duplicate item form action with duplicateIdHandling: ignore', async () => {
-      const plugin = createPluginConfig({ duplicateIdHandling: 'ignore' });
+      const plugin = createPluginConfig({ render: mockRender, duplicateIdHandling: 'ignore' });
       const firstExecute = vi.fn();
       const secondExecute = vi.fn();
       const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
@@ -228,7 +231,7 @@ describe('Dropdown Action Registration', () => {
 
   describe('Items dropdown actions', () => {
     it('should register an items dropdown action', () => {
-      const plugin = createPluginConfig();
+      const plugin = createPluginConfig({ render: mockRender });
       const executeFn = vi.fn();
 
       expect(() => {
@@ -242,7 +245,7 @@ describe('Dropdown Action Registration', () => {
     });
 
     it('should warn by default on duplicate items dropdown action ID', async () => {
-      const plugin = createPluginConfig();
+      const plugin = createPluginConfig({ render: mockRender });
       const firstExecute = vi.fn();
       const secondExecute = vi.fn();
       const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
@@ -274,7 +277,7 @@ describe('Dropdown Action Registration', () => {
     });
 
     it('should throw on duplicate items dropdown action ID with duplicateIdHandling: throw', () => {
-      const plugin = createPluginConfig({ duplicateIdHandling: 'throw' });
+      const plugin = createPluginConfig({ render: mockRender, duplicateIdHandling: 'throw' });
       const executeFn = vi.fn();
 
       plugin.addDropdownAction({
@@ -295,7 +298,7 @@ describe('Dropdown Action Registration', () => {
     });
 
     it('should silently replace duplicate items action with duplicateIdHandling: ignore', async () => {
-      const plugin = createPluginConfig({ duplicateIdHandling: 'ignore' });
+      const plugin = createPluginConfig({ render: mockRender, duplicateIdHandling: 'ignore' });
       const firstExecute = vi.fn();
       const secondExecute = vi.fn();
       const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
@@ -329,7 +332,7 @@ describe('Dropdown Action Registration', () => {
 
   describe('Uploads dropdown actions', () => {
     it('should register an uploads dropdown action', () => {
-      const plugin = createPluginConfig();
+      const plugin = createPluginConfig({ render: mockRender });
       const executeFn = vi.fn();
 
       expect(() => {
@@ -343,7 +346,7 @@ describe('Dropdown Action Registration', () => {
     });
 
     it('should warn by default on duplicate uploads dropdown action ID', async () => {
-      const plugin = createPluginConfig();
+      const plugin = createPluginConfig({ render: mockRender });
       const firstExecute = vi.fn();
       const secondExecute = vi.fn();
       const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
@@ -375,7 +378,7 @@ describe('Dropdown Action Registration', () => {
     });
 
     it('should throw on duplicate uploads dropdown action ID with duplicateIdHandling: throw', () => {
-      const plugin = createPluginConfig({ duplicateIdHandling: 'throw' });
+      const plugin = createPluginConfig({ render: mockRender, duplicateIdHandling: 'throw' });
       const executeFn = vi.fn();
 
       plugin.addDropdownAction({
@@ -396,7 +399,7 @@ describe('Dropdown Action Registration', () => {
     });
 
     it('should silently replace duplicate uploads action with duplicateIdHandling: ignore', async () => {
-      const plugin = createPluginConfig({ duplicateIdHandling: 'ignore' });
+      const plugin = createPluginConfig({ render: mockRender, duplicateIdHandling: 'ignore' });
       const firstExecute = vi.fn();
       const secondExecute = vi.fn();
       const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
@@ -430,7 +433,7 @@ describe('Dropdown Action Registration', () => {
 
   describe('Multiple dropdown actions', () => {
     it('should allow same ID for different types', () => {
-      const plugin = createPluginConfig();
+      const plugin = createPluginConfig({ render: mockRender });
       const executeFn = vi.fn();
 
       expect(() => {
@@ -462,7 +465,7 @@ describe('Dropdown Action Registration', () => {
     });
 
     it('should register dropdown actions with optional icon and shouldApply', () => {
-      const plugin = createPluginConfig();
+      const plugin = createPluginConfig({ render: mockRender });
       const executeFn = vi.fn();
       const shouldApplyFn = vi.fn().mockReturnValue(true);
 

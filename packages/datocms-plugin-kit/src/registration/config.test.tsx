@@ -13,6 +13,9 @@ vi.mock('datocms-plugin-sdk', () => ({
   }),
 }));
 
+// Helper mock render function for tests
+const mockRender = vi.fn();
+
 describe('Config Screen Registration', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -20,7 +23,7 @@ describe('Config Screen Registration', () => {
   });
 
   it('should register a config screen', () => {
-    const plugin = createPluginConfig();
+    const plugin = createPluginConfig({ render: mockRender });
     const TestConfigScreen = () => <div>Config Screen</div>;
 
     expect(() => {
@@ -56,7 +59,7 @@ describe('Config Screen Registration', () => {
   });
 
   it('should throw if config screen is registered twice with duplicateIdHandling: throw', () => {
-    const plugin = createPluginConfig({ duplicateIdHandling: 'throw' });
+    const plugin = createPluginConfig({ render: mockRender, duplicateIdHandling: 'throw' });
     const TestConfigScreen = () => <div>Config Screen</div>;
 
     plugin.configureConfigScreen({ component: TestConfigScreen });
@@ -67,7 +70,7 @@ describe('Config Screen Registration', () => {
   });
 
   it('should silently replace config screen with duplicateIdHandling: ignore', () => {
-    const plugin = createPluginConfig({ duplicateIdHandling: 'ignore' });
+    const plugin = createPluginConfig({ render: mockRender, duplicateIdHandling: 'ignore' });
     const FirstConfigScreen = () => <div>First Config Screen</div>;
     const SecondConfigScreen = () => <div>Second Config Screen</div>;
     const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});

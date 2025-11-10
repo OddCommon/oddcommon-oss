@@ -13,6 +13,9 @@ vi.mock('datocms-plugin-sdk', () => ({
   }),
 }));
 
+// Helper mock render function for tests
+const mockRender = vi.fn();
+
 describe('Page and Navigation Registration', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -21,7 +24,7 @@ describe('Page and Navigation Registration', () => {
 
   describe('addPage', () => {
     it('should register a page', () => {
-      const plugin = createPluginConfig();
+      const plugin = createPluginConfig({ render: mockRender });
       const TestPage = () => <div>Test Page</div>;
 
       expect(() => {
@@ -58,7 +61,7 @@ describe('Page and Navigation Registration', () => {
     });
 
     it('should throw on duplicate page ID with duplicateIdHandling: throw', () => {
-      const plugin = createPluginConfig({ duplicateIdHandling: 'throw' });
+      const plugin = createPluginConfig({ render: mockRender, duplicateIdHandling: 'throw' });
       const TestPage = () => <div>Test Page</div>;
 
       plugin.addPage({ pageId: 'test-page', component: TestPage });
@@ -96,7 +99,7 @@ describe('Page and Navigation Registration', () => {
 
   describe('addMainNavigationTab', () => {
     it('should register a navigation tab', () => {
-      const plugin = createPluginConfig();
+      const plugin = createPluginConfig({ render: mockRender });
 
       expect(() => {
         plugin.addMainNavigationTab({
@@ -110,7 +113,7 @@ describe('Page and Navigation Registration', () => {
 
   describe('addContentAreaSidebarItem', () => {
     it('should register a content area sidebar item', () => {
-      const plugin = createPluginConfig();
+      const plugin = createPluginConfig({ render: mockRender });
 
       expect(() => {
         plugin.addContentAreaSidebarItem({

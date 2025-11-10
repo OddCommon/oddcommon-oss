@@ -12,6 +12,11 @@ The DatoCMS plugin SDK requires a large configuration object with 45+ hooks. Man
 pnpm add @oddcommon/datocms-plugin-kit
 ```
 
+### Requirements
+
+- **React 19.x** - This library requires React 19 or later as a peer dependency
+- **Node.js 22+** - For development and building
+
 ## Usage
 
 ### 1. Create Plugin Configuration
