@@ -46,15 +46,16 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/oddcommon/oddcommon-oss.git",
+    "url": "https://github.com/OddCommon/oddcommon-oss.git",
     "directory": "packages/datocms-plugin-kit"
   },
   "bugs": {
-    "url": "https://github.com/oddcommon/oddcommon-oss/issues"
+    "url": "https://github.com/OddCommon/oddcommon-oss/issues"
   },
-  "homepage": "https://github.com/oddcommon/oddcommon-oss/tree/main/packages/datocms-plugin-kit#readme",
+  "homepage": "https://github.com/OddCommon/oddcommon-oss/tree/main/packages/datocms-plugin-kit#readme",
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "provenance": true
   },
   "dependencies": {
     "datocms-plugin-sdk": "^2.0.15"
