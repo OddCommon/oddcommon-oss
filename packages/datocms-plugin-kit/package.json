@@ -54,7 +54,8 @@
   },
   "homepage": "https://github.com/oddcommon/oddcommon-oss/tree/main/packages/datocms-plugin-kit#readme",
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "provenance": true
   },
   "dependencies": {
     "datocms-plugin-sdk": "^2.0.15"
