@@ -54,7 +54,7 @@ describe('Config Screen Registration', () => {
     expect(customRender).toHaveBeenCalledWith(
       expect.objectContaining({
         type: SecondConfigScreen,
-      })
+      }),
     );
   });
 
