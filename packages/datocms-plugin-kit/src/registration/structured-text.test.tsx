@@ -1,5 +1,3 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createPluginConfig } from '../factory';
 import type {
   CustomBlockStylesForStructuredTextFieldCtx,
   CustomMarksForStructuredTextFieldCtx,
@@ -8,6 +6,9 @@ import type {
   StructuredTextCustomBlockStyle,
   StructuredTextCustomMark,
 } from 'datocms-plugin-sdk';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { createPluginConfig } from '../factory';
 
 // Mock to capture the config passed to connect
 let capturedConfig: Partial<FullConnectParameters> | null = null;
