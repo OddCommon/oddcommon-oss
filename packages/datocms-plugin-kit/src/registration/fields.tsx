@@ -2,14 +2,27 @@ import type {
   FieldExtensionOverride,
   FullConnectParameters,
   ManualFieldExtension,
+  RenderFieldExtensionCtx,
 } from 'datocms-plugin-sdk';
 
 import type {
   FieldExtensionConfig,
   FieldExtensionOverrideConfig,
+  HiddenFieldPredicate,
   PluginInternalConfig,
 } from '../types';
 import { validateUniqueId } from '../utils/validation';
+
+const HIDDEN_FIELD_EXTENSION_ID = '@oddcommon/datocms-plugin-kit/hidden-field';
+
+/**
+ * Helper function to render a hidden field
+ */
+function renderHiddenField(ctx: RenderFieldExtensionCtx) {
+  ctx.toggleField(ctx.fieldPath, false);
+  // Return null - we don't render anything for hidden fields
+  return null;
+}
 
 export function createFieldExtensionRegistration(
   config: Partial<FullConnectParameters>,
@@ -17,6 +30,7 @@ export function createFieldExtensionRegistration(
 ) {
   const extensions = new Map<string, FieldExtensionConfig>();
   const overrides: FieldExtensionOverrideConfig[] = [];
+  const hiddenFieldPredicates: HiddenFieldPredicate[] = [];
 
   function addFieldExtension(extensionConfig: FieldExtensionConfig) {
     const existingIds = Array.from(extensions.keys());
@@ -52,6 +66,13 @@ export function createFieldExtensionRegistration(
     // Register render hook for field extensions
     if (!config.renderFieldExtension) {
       config.renderFieldExtension = (extensionId, ctx) => {
+        // Handle built-in hidden field extension
+        if (extensionId === HIDDEN_FIELD_EXTENSION_ID) {
+          renderHiddenField(ctx);
+          return;
+        }
+
+        // Handle user-defined extensions
         const extension = extensions.get(extensionId);
         if (extension) {
           const Component = extension.component;
@@ -83,13 +104,35 @@ export function createFieldExtensionRegistration(
     }
   }
 
+  function addHiddenField(predicate: HiddenFieldPredicate) {
+    // Store the predicate
+    hiddenFieldPredicates.push(predicate);
+
+    // Update overrideFieldExtensions to check hidden fields
+    updateOverrideFieldExtensions();
+  }
+
   function overrideFieldExtension(overrideConfig: FieldExtensionOverrideConfig) {
     // Store the override config
     overrides.push(overrideConfig);
 
-    // Register overrideFieldExtensions hook (single function that processes all overrides)
+    // Update overrideFieldExtensions
+    updateOverrideFieldExtensions();
+  }
+
+  function updateOverrideFieldExtensions() {
+    // Register overrideFieldExtensions hook (processes hidden fields and user overrides)
     config.overrideFieldExtensions = (field, ctx) => {
-      // Find the first matching override
+      // Check hidden field predicates first
+      for (const predicate of hiddenFieldPredicates) {
+        if (predicate(field, ctx)) {
+          return {
+            editor: { id: HIDDEN_FIELD_EXTENSION_ID },
+          };
+        }
+      }
+
+      // Check user-defined overrides
       for (const override of overrides) {
         if (override.shouldApply(field, ctx)) {
           const result: FieldExtensionOverride = {};
@@ -114,5 +157,6 @@ export function createFieldExtensionRegistration(
   return {
     addFieldExtension,
     overrideFieldExtension,
+    addHiddenField,
   };
 }

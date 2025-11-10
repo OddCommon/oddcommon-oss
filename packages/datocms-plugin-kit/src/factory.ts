@@ -25,10 +25,8 @@ export function createPluginConfig(options: PluginOptions) {
   const { addPage, addMainNavigationTab, addContentAreaSidebarItem, addSettingsAreaSidebarItem } =
     createPageRegistration(config, internalConfig);
   const { addSidebarPanel, addSidebar } = createSidebarRegistration(config, internalConfig);
-  const { addFieldExtension, overrideFieldExtension } = createFieldExtensionRegistration(
-    config,
-    internalConfig,
-  );
+  const { addFieldExtension, overrideFieldExtension, addHiddenField } =
+    createFieldExtensionRegistration(config, internalConfig);
   const { addModal } = createModalRegistration(config, internalConfig);
   const { configureConfigScreen } = createConfigScreenRegistration(config, internalConfig);
   const { addDropdownAction } = createDropdownActionRegistration(config, internalConfig);
@@ -57,6 +55,7 @@ export function createPluginConfig(options: PluginOptions) {
     addSidebar,
     addFieldExtension,
     overrideFieldExtension,
+    addHiddenField,
     addModal,
     configureConfigScreen,
     addDropdownAction,

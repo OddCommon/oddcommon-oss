@@ -33,6 +33,12 @@ import type {
   StructuredTextCustomMark,
 } from 'datocms-plugin-sdk';
 
+// ============================================================================
+// Field Hiding
+// ============================================================================
+
+export type HiddenFieldPredicate = (field: Field, ctx: OverrideFieldExtensionsCtx) => boolean;
+
 // Duplicate ID handling modes
 export type DuplicateIdHandling = 'throw' | 'warn' | 'ignore';
 

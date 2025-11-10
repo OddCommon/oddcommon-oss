@@ -276,6 +276,58 @@ overrideFieldExtension({
 });
 ```
 
+#### `addHiddenField(predicate)`
+
+Conditionally hide fields from the DatoCMS UI based on custom logic.
+
+**Predicate:**
+
+- `(field: Field, ctx: OverrideFieldExtensionsCtx) => boolean` - Function that returns `true` if the field should be hidden
+
+**Behavior:**
+
+- Multiple predicates can be registered by calling `addHiddenField` multiple times
+- Hidden field predicates are checked **before** user-defined field extension overrides
+- When a predicate returns `true`, the field is automatically hidden from the UI
+- The field editor is replaced with a built-in hidden field extension that renders nothing
+
+**Example - Hide specific fields in a block:**
+
+```typescript
+import { addHiddenField, getFieldItemType } from '~/plugin';
+
+addHiddenField((field, ctx) => {
+  const hiddenFields = ['managed_id', 'managed_data'];
+  const blockApiKey = 'external_content_block';
+
+  const parent = getFieldItemType(field, ctx);
+  return (
+    parent &&
+    parent.attributes.api_key === blockApiKey &&
+    hiddenFields.includes(field.attributes.api_key)
+  );
+});
+```
+
+**Example - Hide fields based on field type:**
+
+```typescript
+addHiddenField((field, ctx) => {
+  // Hide all JSON fields with a specific prefix
+  return (
+    field.attributes.field_type === 'json' &&
+    field.attributes.api_key.startsWith('internal_')
+  );
+});
+```
+
+**Use cases:**
+
+- Hide managed/internal fields that should not be edited manually
+- Conditionally hide fields based on parent model or block type
+- Hide fields used for automation or integration purposes
+- Dynamically hide fields based on complex business logic
+
 ### UI Components
 
 #### `addModal(config)`

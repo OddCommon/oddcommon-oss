@@ -10,6 +10,7 @@ export type {
   SidebarConfig,
   FieldExtensionConfig,
   FieldExtensionOverrideConfig,
+  HiddenFieldPredicate,
   ModalConfig,
   ConfigScreenConfig,
   DropdownActionConfig,
