@@ -68,8 +68,7 @@ export function createFieldExtensionRegistration(
       config.renderFieldExtension = (extensionId, ctx) => {
         // Handle built-in hidden field extension
         if (extensionId === HIDDEN_FIELD_EXTENSION_ID) {
-          renderHiddenField(ctx);
-          return;
+          return internalConfig.render(renderHiddenField(ctx));
         }
 
         // Handle user-defined extensions
