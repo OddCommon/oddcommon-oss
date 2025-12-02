@@ -1,5 +1,11 @@
 # @oddcommon/datocms-plugin-kit
 
+## 0.1.1
+
+### Patch Changes
+
+- [#6](https://github.com/OddCommon/oddcommon-oss/pull/6) [`7e087a7`](https://github.com/OddCommon/oddcommon-oss/commit/7e087a76551e3474fa6cd90b3c4ab30b26ab1509) Thanks [@albancreton](https://github.com/albancreton)! - Render `null` for hidden fields
+
 ## 0.1.0
 
 ### Minor Changes
