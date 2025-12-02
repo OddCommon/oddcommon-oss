@@ -1,6 +1,6 @@
 {
   "name": "@oddcommon/datocms-plugin-kit",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A toolkit for building organized, modular DatoCMS plugins",
   "type": "module",
   "sideEffects": false,
